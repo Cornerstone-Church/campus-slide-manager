@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <title>CSM - Editor</title>
+        <meta charset="utf8">
+        <link rel="stylesheet" type="text/css" href="/styles/style.css">
+        <style>
+            body, html {
+                background: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            Timer (Seconds)
+            <input value="" max="30" id="slideshowTimer" type="number">
+        </div>
+        <div class="uploader">
+            <input type="checkbox" id="everydayCheck"> All
+            <br><input type="checkbox" id="sundayCheck"> Sunday
+            <input type="checkbox" id="mondayCheck"> Monday
+            <input type="checkbox" id="tuesdayCheck"> Tuesday
+            <input type="checkbox" id="wednesdayCheck"> Wednesday
+            <input type="checkbox" id="thursdayCheck"> Thursday
+            <input type="checkbox" id="fridayCheck"> Friday
+            <input type="checkbox" id="saturdayCheck"> Saturday
+            <br>
+            <progress value="0" max="100" id="uploader"></progress>
+            <br><input type="file" value="upload" id="fileButton" accept="image/*">
+            <br><button type="submit" id="uploadButton">Upload</button>
+            <br><button id="removeAllButton">Remove All</button>
+        </div>
+    </body>
+
+    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
+    <script src="/scripts/database.js"></script>
+    <script src="./scripts/admin_manager.js"></script>
+</html>
