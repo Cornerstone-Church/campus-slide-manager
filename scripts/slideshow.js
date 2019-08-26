@@ -1,5 +1,30 @@
 var slideshowTimer;
 
+document.addEventListener('keydown', (e) => {
+    if (e.code == 'KeyF') {
+        fullscreenToggle();
+    }
+});
+
+// Get timer from server
+db.collection('csm').doc('settings').onSnapshot((doc) => {
+    timer = doc.data().timer;
+});
+
+// Update server when detecting a change
+// Also runs on load
+db.collection('csm').doc('mediadata').collection('meta').onSnapshot((snapshot) => {
+    // Stop the slideshow
+    stopShow();
+    // Save snapshot
+    setMetaSnapshot(snapshot);
+    // Re-fetch all images from server
+    getImages(generateImage);
+
+
+    console.log('Updated content from server');
+});
+
 function stopShow() {
     // Stop timer
     clearTimeout(slideshowTimer);

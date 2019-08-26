@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <title>CSM - Live Server</title>
-        <meta charset="utf8">
-        <link rel="stylesheet" type="text/css" href="/styles/style.css">
-    </head>
-    <body>
-        <div id="toast">
-            Press <span class="highlight">F</span> key to enter fullscreen
-        </div>
-        <div id="placeholder"></div>
-    </body>
 
-    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-storage.js"></script>
-    <script src="/scripts/database.js"></script>
-    <script src="/scripts/app.js"></script>
-    <script src="/scripts/slideshow.js"></script>
+<head>
+    <title>CSM - Live Server</title>
+    <meta charset="utf8">
+    <link rel="stylesheet" type="text/css" href="/styles/style.css">
+</head>
+
+<body>
+    <div id="toast">
+        Press <span class="highlight">F</span> key to enter fullscreen
+    </div>
+    <div id="placeholder"></div>
+</body>
+
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-storage.js"></script>
+<script src="/scripts/database.js"></script>
+<script src="/scripts/app.js"></script>
+<script src="/scripts/slideshow.js"></script>
+<script>
+    // On launch code
+    showToast();
+    timeCheckerLoop();
+</script>
+
 </html>

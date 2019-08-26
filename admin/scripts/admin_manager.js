@@ -16,6 +16,17 @@ var saturdayCheck = document.getElementById('saturdayCheck');
 
 var file;
 
+// Slide Thumbs
+var sundaySlides = [];
+var mondaySlides = [];
+var tuesdaySlides = [];
+var wednesdaySlides = [];
+var thursdaySlides = [];
+var fridaySlides = [];
+var saturdaySlides = [];
+
+var sundayPlaceholder = document.getElementById('sundaySlides');
+
 // Upload button
 fileButton.addEventListener('change', (e) => {
     // Get file
@@ -85,6 +96,18 @@ db.collection('csm').doc('settings').get().then((doc) => {
     slideshowTimer.value = server;
 });
 
+// Update server when detecting a change
+// Also runs on load
+db.collection('csm').doc('mediadata').collection('meta').onSnapshot((snapshot) => {
+    // Save snapshot
+    metaSnapshot = snapshot;
+    // Re-fetch all images from server
+    loadSlidesThumbs();
+
+    console.log('Updated content from server');
+});
+
+
 //// LISTENERS
 // Send updated timer to server
 slideshowTimer.addEventListener('change', (e) => {
@@ -134,20 +157,97 @@ removeAllButton.addEventListener('mousedown', (e) => {
                     });
                 });
             });
-            
+
 
             console.log('All slides removed');
         })
     }
 });
 
+function loadSlidesThumbs() {
+    getImages(sortSlideThumbs);
+}
+
+function sortSlideThumbs(slides) {
+    slides.forEach((t) => {
+        getMetaSnapshot().forEach((item) => {
+            if (item.id == t.name) {
+                item.data().days.forEach((day) => {
+                    switch (day) {
+                        case 'sunday': {
+                            console.log(item.id);
+                            sundaySlides.push(t);
+                            break;
+                        }
+                        case 'monday': {
+                            mondaySlides.push(t);
+                            break;
+                        }
+                        case 'tuesday': {
+                            tuesdaySlides.push(t);
+                            break;
+                        }
+                        case 'wednesday': {
+                            wednesdaySlides.push(t);
+                            break;
+                        }
+                        case 'thursday': {
+                            thursdaySlides.push(t);
+                            break;
+                        }
+                        case 'friday': {
+                            fridaySlides.push(t);
+                            break;
+                        }
+                        case 'saturday': {
+                            saturdaySlides.push(t);
+                            break;
+                        }
+                        default: console.log('error');
+                    }
+                });
+            }
+        });
+    });
+    drawSlideThumbs();
+}
+
+function drawSlideThumbs() {
+    console.log('Called');
+
+    console.log(sundaySlides);
+    console.log(mondaySlides);
+    console.log(tuesdaySlides);
+    console.log(wednesdaySlides);
+    console.log(thursdaySlides);
+    console.log(fridaySlides);
+    console.log(saturdaySlides);
+
+    // Thumbnail Placeholders
+    var sundayPlaceholder = document.getElementById('sundaySlides');
+    var mondayPlaceholder = document.getElementById('mondaySlides');
+    var tuesdayPlaceholder = document.getElementById('tuesdaySlides');
+    var wednesdayPlaceholder = document.getElementById('wednesdaySlides');
+    var thursdayPlaceholder = document.getElementById('thursdaySlides');
+    var fridayPlaceholder = document.getElementById('fridaySlides');
+    var saturdayPlaceholder = document.getElementById('saturdaySlides');
+
+    // Draw content to each placeholder
+    drawImages(sundaySlides, sundayPlaceholder);
+    drawImages(mondaySlides, mondayPlaceholder);
+    drawImages(tuesdaySlides, tuesdayPlaceholder);
+    drawImages(wednesdaySlides, wednesdayPlaceholder);
+    drawImages(thursdaySlides, thursdayPlaceholder);
+    drawImages(fridaySlides, fridayPlaceholder);
+    drawImages(saturdaySlides, saturdayPlaceholder);
+}
 
 function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
 }

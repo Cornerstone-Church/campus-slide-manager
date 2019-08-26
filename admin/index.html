@@ -3,38 +3,53 @@
     <head>
         <title>CSM - Editor</title>
         <meta charset="utf8">
-        <link rel="stylesheet" type="text/css" href="/styles/style.css">
-        <style>
-            body, html {
-                background: white;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="/styles/style_admin.css">
     </head>
     <body>
+        <h2>Slideshow Settings</h2>
         <div>
             Timer (Seconds)
-            <input value="" max="30" id="slideshowTimer" type="number">
+            <input value="" max="30" id="slideshowTimer" type="number"> (Updates live)
         </div>
+        <h2>Upload</h2>
         <div class="uploader">
-            <input type="checkbox" id="everydayCheck"> All
-            <br><input type="checkbox" id="sundayCheck"> Sunday
+            <input type="checkbox" id="sundayCheck"> Sunday
             <input type="checkbox" id="mondayCheck"> Monday
             <input type="checkbox" id="tuesdayCheck"> Tuesday
             <input type="checkbox" id="wednesdayCheck"> Wednesday
             <input type="checkbox" id="thursdayCheck"> Thursday
             <input type="checkbox" id="fridayCheck"> Friday
             <input type="checkbox" id="saturdayCheck"> Saturday
+            <input type="checkbox" id="everydayCheck"> Select All
             <br>
             <progress value="0" max="100" id="uploader"></progress>
             <br><input type="file" value="upload" id="fileButton" accept="image/*">
             <br><button type="submit" id="uploadButton">Upload</button>
-            <br><button id="removeAllButton">Remove All</button>
+            <h2>Slides</h2>
+            <button id="removeAllButton">Remove All</button>
+            <div class="slideThumbnails">
+                <h3>Sunday</h3>
+                <div id="sundaySlides"></div>
+                <h3>Monday</h3>
+                <div id="mondaySlides"></div>
+                <h3>Tuesday</h3>
+                <div id="tuesdaySlides"></div>
+                <h3>Wednesday</h3>
+                <div id="wednesdaySlides"></div>
+                <h3>Thursday</h3>
+                <div id="thursdaySlides"></div>
+                <h3>Friday</h3>
+                <div id="fridaySlides"></div>
+                <h3>Saturday</h3>
+                <div id="saturdaySlides"></div>
+            </div>
         </div>
     </body>
 
     <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/6.3.1/firebase-firestore.js"></script>
+    <script src="/scripts/app.js"></script>
     <script src="/scripts/database.js"></script>
     <script src="./scripts/admin_manager.js"></script>
 </html>

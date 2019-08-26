@@ -1,21 +1,15 @@
 var docElem = document.documentElement;
 var toastElement = document.getElementById('toast');
-var placeholder = document.getElementById('placeholder');
+var slideshowPlaceholder = document.getElementById('placeholder');
 var imageElements = [];
 var timer = 4000; // Default time if can not get to server
 var currentSlideId = 0;
 var loopCounter = 0;
 var metaSnapshot;
 
-// Sett up launch time stamp
-var launchTimeStamp = Date.now();
-launchTimeStamp = launchTimeStamp / 60000;
-launchTimeStamp = Math.floor(launchTimeStamp / 1440);
-
-
-// On launch code
-showToast();
-timeCheckerLoop();
+// Set up launch time stamp
+var launchTimeStamp = new Date();
+launchTimeStamp = launchTimeStamp.getDay();
 
 function fullscreenToggle() {
     if (docElem.requestFullscreen) {
@@ -58,12 +52,6 @@ function fullscreenToggle() {
     }
 }
 
-document.addEventListener('keydown', (e) => {
-    if (e.code == 'KeyF') {
-        fullscreenToggle();
-    }
-});
-
 function showToast() {
     toastElement.classList.remove('toastNotification');
     void toastElement.offsetWidth;
@@ -88,25 +76,6 @@ function showIt(snapshot) {
         console.log(image);
     });
 }
-
-// Get timer from server
-db.collection('csm').doc('settings').onSnapshot((doc) => {
-    timer = doc.data().timer;
-});
-
-// Update server when detecting a change
-// Also runs on load
-db.collection('csm').doc('mediadata').collection('meta').onSnapshot((snapshot) => {
-    // Stop the slideshow
-    stopShow();
-    // Save snapshot
-    metaSnapshot = snapshot;
-    // Re-fetch all images from server
-    getImages(generateImage);
-
-
-    console.log('Updated content from server');
-});
 
 // Master function that triggers the entire image server setup/download/draw
 async function generateImage(imageArray) {
@@ -173,7 +142,7 @@ async function generateImage(imageArray) {
     });
 
     // Wait for the function to draw images to screen
-    await drawImages(imagesToDraw);
+    await drawImages(imagesToDraw, slideshowPlaceholder);
 
     // Assign all created images a variable
     imageElements = document.querySelectorAll('#placeholder img');
@@ -182,11 +151,11 @@ async function generateImage(imageArray) {
     // Check to see if there is more then 1 slide
     if (imageElements.length > 1) {
         // Make element visable
-        placeholder.style.opacity = 1;
+        slideshowPlaceholder.style.opacity = 1;
         // Only play if there are more then one slide
         startSlideshow();
     } else {
-        placeholder.style.opacity = 1;
+        slideshowPlaceholder.style.opacity = 1;
     }
 
     // Time checker
@@ -198,7 +167,7 @@ async function generateImage(imageArray) {
 }
 
 // A promise function that will download and create elements for each image
-function drawImages(imageArray) {
+function drawImages(imageArray, placeholder) {
     return new Promise(async resolve => {
         for (i = 0; i < imageArray.length; i++) {
             var image = storageRef.child(imageArray[i].location.path);
@@ -223,25 +192,25 @@ function checkDate(day, dayArray) {
         if (day == item) {
             foundMatch = true;
         }
-    })
+    });
     return foundMatch;
 }
 
 // Will return true or false if current time is the same (in days)
 // Used when server head has been running for more then a day.
 function timeCheck(postTime) {
-    var currentTime = Date.now();
-    var currentMin = currentTime / 60000;
-    var currentDay = Math.floor(currentMin / 1440);
+    var currentTime = new Date();
+    var currentTime = currentTime.getDay();
 
-    if (currentDay > postTime) {
-        return false;
-    } else {
+    if (currentTime == postTime) {
         return true;
+    } else {
+        return false;
     }
 }
 
 // Function that runs on start to check if a reload is needed
+
 function timeCheckerLoop() {
     console.log('------------------------------------');
     console.log('Time checked');
@@ -252,4 +221,12 @@ function timeCheckerLoop() {
     if (!timeCheck(launchTimeStamp)) {
         location.reload();
     }
+}
+
+function setMetaSnapshot(snapshot) {
+    metaSnapshot = snapshot;
+}
+
+function getMetaSnapshot() {
+    return metaSnapshot;
 }
