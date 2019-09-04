@@ -210,7 +210,6 @@ function timeCheck(postTime) {
 }
 
 // Function that runs on start to check if a reload is needed
-
 function timeCheckerLoop() {
     console.log('------------------------------------');
     console.log('Time checked');
