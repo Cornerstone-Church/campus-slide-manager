@@ -212,16 +212,13 @@ function sortSlideThumbs(slides) {
     drawSlideThumbs();
 }
 
-function drawSlideThumbs() {
-    console.log('Called');
+async function drawSlideThumbs() {
+    var exisitingImg = document.querySelectorAll('.slideThumbnails img');
 
-    console.log(sundaySlides);
-    console.log(mondaySlides);
-    console.log(tuesdaySlides);
-    console.log(wednesdaySlides);
-    console.log(thursdaySlides);
-    console.log(fridaySlides);
-    console.log(saturdaySlides);
+    // Remove any existing images
+    exisitingImg.forEach((element) => {
+        element.remove();
+    });
 
     // Thumbnail Placeholders
     var sundayPlaceholder = document.getElementById('sundaySlides');
@@ -233,13 +230,13 @@ function drawSlideThumbs() {
     var saturdayPlaceholder = document.getElementById('saturdaySlides');
 
     // Draw content to each placeholder
-    drawImages(sundaySlides, sundayPlaceholder);
-    drawImages(mondaySlides, mondayPlaceholder);
-    drawImages(tuesdaySlides, tuesdayPlaceholder);
-    drawImages(wednesdaySlides, wednesdayPlaceholder);
-    drawImages(thursdaySlides, thursdayPlaceholder);
-    drawImages(fridaySlides, fridayPlaceholder);
-    drawImages(saturdaySlides, saturdayPlaceholder);
+    await drawImages(sundaySlides, sundayPlaceholder);
+    await drawImages(mondaySlides, mondayPlaceholder);
+    await drawImages(tuesdaySlides, tuesdayPlaceholder);
+    await drawImages(wednesdaySlides, wednesdayPlaceholder);
+    await drawImages(thursdaySlides, thursdayPlaceholder);
+    await drawImages(fridaySlides, fridayPlaceholder);
+    await drawImages(saturdaySlides, saturdayPlaceholder);
 }
 
 function makeid(length) {
