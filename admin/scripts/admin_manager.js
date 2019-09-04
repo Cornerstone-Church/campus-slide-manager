@@ -27,67 +27,6 @@ var saturdaySlides = [];
 
 var sundayPlaceholder = document.getElementById('sundaySlides');
 
-// Upload button
-fileButton.addEventListener('change', (e) => {
-    // Get file
-    file = e.target.files[0];
-});
-
-// Upload Button
-uploadButton.addEventListener('mousedown', (e) => {
-    var uploadId = makeid(12);
-
-    // Create a storage ref
-    var storageRef = storage.ref('csm-data/images/' + uploadId);
-
-    // Upload File
-    var task = storageRef.put(file);
-
-    // Update Progress bar
-    task.on('state_changed',
-        function progress(snapshot) {
-            var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            uploader.value = percentage;
-        },
-
-        function error(err) {
-            alert('There was an error: ' + err);
-        },
-
-        function complete() {
-            var days = [];
-            // Check what days
-            if (sundayCheck.checked == true) {
-                days.push('sunday');
-            }
-            if (mondayCheck.checked == true) {
-                days.push('monday');
-            }
-            if (tuesdayCheck.checked == true) {
-                days.push('tuesday');
-            }
-            if (wednesdayCheck.checked == true) {
-                days.push('wednesday');
-            }
-            if (thursdayCheck.checked == true) {
-                days.push('thursday');
-            }
-            if (fridayCheck.checked == true) {
-                days.push('friday');
-            }
-            if (saturdayCheck.checked == true) {
-                days.push('saturday');
-            }
-
-            db.collection('csm').doc('mediadata').collection('meta').doc(uploadId).set({
-                days: days,
-            });
-
-            alert('Complete');
-        }
-    );
-});
-
 // Update timer
 db.collection('csm').doc('settings').get().then((doc) => {
     var server = doc.data().timer;
@@ -164,6 +103,67 @@ removeAllButton.addEventListener('mousedown', (e) => {
     }
 });
 
+// Upload button
+fileButton.addEventListener('change', (e) => {
+    // Get file
+    file = e.target.files[0];
+});
+
+// Upload Button
+uploadButton.addEventListener('mousedown', (e) => {
+    var uploadId = makeid(12);
+
+    // Create a storage ref
+    var storageRef = storage.ref('csm-data/images/' + uploadId);
+
+    // Upload File
+    var task = storageRef.put(file);
+
+    // Update Progress bar
+    task.on('state_changed',
+        function progress(snapshot) {
+            var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            uploader.value = percentage;
+        },
+
+        function error(err) {
+            alert('There was an error: ' + err);
+        },
+
+        function complete() {
+            var days = [];
+            // Check what days
+            if (sundayCheck.checked == true) {
+                days.push('sunday');
+            }
+            if (mondayCheck.checked == true) {
+                days.push('monday');
+            }
+            if (tuesdayCheck.checked == true) {
+                days.push('tuesday');
+            }
+            if (wednesdayCheck.checked == true) {
+                days.push('wednesday');
+            }
+            if (thursdayCheck.checked == true) {
+                days.push('thursday');
+            }
+            if (fridayCheck.checked == true) {
+                days.push('friday');
+            }
+            if (saturdayCheck.checked == true) {
+                days.push('saturday');
+            }
+
+            db.collection('csm').doc('mediadata').collection('meta').doc(uploadId).set({
+                days: days,
+            });
+
+            alert('Complete');
+        }
+    );
+});
+
 function loadSlidesThumbs() {
     getImages(sortSlideThumbs);
 }
@@ -228,6 +228,8 @@ async function drawSlideThumbs() {
     var thursdayPlaceholder = document.getElementById('thursdaySlides');
     var fridayPlaceholder = document.getElementById('fridaySlides');
     var saturdayPlaceholder = document.getElementById('saturdaySlides');
+
+    // TODO: Create overlay with trashcan icon to remove slide
 
     // Draw content to each placeholder
     await drawImages(sundaySlides, sundayPlaceholder);
