@@ -291,7 +291,6 @@ function createThumbnail(id, url, day, placeholder) {
     placeholder.appendChild(thumbnail);
 }
 
-// TODO: Flesh out delete code
 function deleteSlide(id, day) {
     if (confirm('Are you sure you want to remove image?')) {
         var daysOfTheWeek = db.collection('csm').doc('mediadata').collection('meta').doc(id);
