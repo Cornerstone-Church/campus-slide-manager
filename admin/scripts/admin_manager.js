@@ -99,6 +99,7 @@ removeAllButton.addEventListener('mousedown', (e) => {
 
 
             console.log('All slides removed');
+            location.reload(true);
         })
     }
 });
@@ -160,6 +161,7 @@ uploadButton.addEventListener('mousedown', (e) => {
             });
 
             alert('Complete');
+            location.reload(true);
         }
     );
 });
@@ -175,7 +177,6 @@ function sortSlideThumbs(slides) {
                 item.data().days.forEach((day) => {
                     switch (day) {
                         case 'sunday': {
-                            console.log(item.id);
                             sundaySlides.push(t);
                             break;
                         }
@@ -231,14 +232,110 @@ async function drawSlideThumbs() {
 
     // TODO: Create overlay with trashcan icon to remove slide
 
+
     // Draw content to each placeholder
-    await drawImages(sundaySlides, sundayPlaceholder);
-    await drawImages(mondaySlides, mondayPlaceholder);
-    await drawImages(tuesdaySlides, tuesdayPlaceholder);
-    await drawImages(wednesdaySlides, wednesdayPlaceholder);
-    await drawImages(thursdaySlides, thursdayPlaceholder);
-    await drawImages(fridaySlides, fridayPlaceholder);
-    await drawImages(saturdaySlides, saturdayPlaceholder);
+    await fetchServerImages('sunday', sundaySlides, sundayPlaceholder);
+    await fetchServerImages('monday', mondaySlides, mondayPlaceholder);
+    await fetchServerImages('tuesday', tuesdaySlides, tuesdayPlaceholder);
+    await fetchServerImages('wednesday', wednesdaySlides, wednesdayPlaceholder);
+    await fetchServerImages('thursday', thursdaySlides, thursdayPlaceholder);
+    await fetchServerImages('friday', fridaySlides, fridayPlaceholder);
+    await fetchServerImages('saturday', saturdaySlides, saturdayPlaceholder);
+}
+
+// A promise function that will download and create elements for each image
+function fetchServerImages(day, imageArray, placeholder) {
+    return new Promise(async resolve => {
+        for (i = 0; i < imageArray.length; i++) {
+            var image = storageRef.child(imageArray[i].location.path);
+            // Save image url as variable
+            var url = await image.getDownloadURL();
+            var id = image.name;
+
+            // Create thumbnail
+            createThumbnail(id, url, day, placeholder);
+        }
+        resolve();
+    });
+}
+
+function createThumbnail(id, url, day, placeholder) {
+    var img = document.createElement('img');
+    // assign url
+    img.src = url;
+    // set image id to image name
+    img.setAttribute('id', id);
+
+    // Create thumbnail element
+    var thumbnail = document.createElement('div');
+    thumbnail.setAttribute('class', 'image-thumbnail');
+
+    // Create overlay
+    var thumbnailOverlay = document.createElement('div');
+    thumbnailOverlay.setAttribute('class', 'thumbnail-overlay');
+
+    // Create Delete button
+    var deleteButton = document.createElement('a');
+    deleteButton.setAttribute('class', 'delete-button');
+    deleteButton.setAttribute('onclick', "deleteSlide('" + id + "', '" + day + "');");
+    var deleteIcon = document.createElement('img');
+    deleteIcon.src = '/ref/icons/trash-can-white.png';
+    deleteButton.appendChild(deleteIcon);
+    // Add button to overlay
+    thumbnailOverlay.appendChild(deleteButton);
+
+    // Stack elements in order
+    thumbnail.appendChild(img);
+    thumbnail.appendChild(thumbnailOverlay);
+
+    placeholder.appendChild(thumbnail);
+}
+
+// TODO: Flesh out delete code
+function deleteSlide(id, day) {
+    if (confirm('Are you sure you want to remove image?')) {
+        var daysOfTheWeek = db.collection('csm').doc('mediadata').collection('meta').doc(id);
+        daysOfTheWeek.get().then((doc) => {
+            if (doc.exists) {
+                // Set variables
+                var setImageDays = doc.data().days;
+
+                // Check to see if the image is used in more then one place
+                if (setImageDays.length > 1) {
+                    // Go through each day the image is set to show
+                    for (i = 0; i < setImageDays.length; i++) {
+                        // If day is found remove it from the array
+                        if (day == setImageDays[i]) {
+                            setImageDays.splice(i, 1);
+                        }
+                    }
+                    // TODO: Finish this!!!
+                    // Remove old server array
+                    var removeDay = daysOfTheWeek.update({
+                        days: firebase.firestore.FieldValue.delete(),
+                    });
+                    // Upload updated server array
+                    var setDays = daysOfTheWeek.set({
+                        days: setImageDays,
+                    });
+                    location.reload(true);
+                } else {
+                    // Remove document
+                    daysOfTheWeek.delete().then(() => {
+                        console.log('Removed meta document');
+                    });
+                    // Remove image from storage
+                    var imageRef = storageRef.child('csm-data/images/' + id);
+                    imageRef.delete().then(() => {
+                        console.log('Image removed from storage');
+                    });
+                    location.reload(true);
+                }
+            } else {
+                alert('The document you are deleting does not exist. Try reloading the page?')
+            }
+        });
+    }
 }
 
 function makeid(length) {
