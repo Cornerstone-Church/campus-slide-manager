@@ -76,17 +76,13 @@ everydayCheck.addEventListener('change', (e) => {
     }
 });
 
-removeAllButton.addEventListener('mousedown', (e) => {
+removeAllButton.addEventListener('mousedown', (action) => {
     if (confirm('Are you sure you want to remove all slides?')) {
         console.log('Removing all slides');
         directoryRef.listAll().then((e) => {
             e.items.forEach((item) => {
-                // Select the image
-                var imageRef = storageRef.child(item.location.path);
-
                 // Remove it
-                imageRef.delete().then(() => {
-                    db.collection('csm').doc('mediadata').collection('meta')
+                item.delete().then(() => {
                 });
             })
 
@@ -97,8 +93,6 @@ removeAllButton.addEventListener('mousedown', (e) => {
                 });
             });
 
-
-            console.log('All slides removed');
             location.reload(true);
         })
     }
