@@ -91,9 +91,9 @@ removeAllButton.addEventListener('mousedown', (action) => {
                     db.collection('csm').doc('mediadata').collection('meta').doc(doc.id).delete().then(() => {
                     });
                 });
+            }).then(() => {
+                alert('Removed all slides');
             });
-
-            location.reload(true);
         })
     }
 });
@@ -152,19 +152,30 @@ uploadButton.addEventListener('mousedown', (e) => {
 
             db.collection('csm').doc('mediadata').collection('meta').doc(uploadId).set({
                 days: days,
+            }).then(() => {
+                // TODO: Create created notification
+                console.log('Complete');
             });
-
-            alert('Complete');
-            location.reload(true);
+            
         }
     );
 });
 
 function loadSlidesThumbs() {
-    getImages(sortSlideThumbs);
+    getImages(_sortSlideThumbs);
 }
 
-function sortSlideThumbs(slides) {
+function _sortSlideThumbs(slides) {
+    // Clear all sorted existing arrays
+    sundaySlides = [];
+    mondaySlides = [];
+    tuesdaySlides = [];
+    wednesdaySlides = [];
+    thursdaySlides = [];
+    fridaySlides = [];
+    saturdaySlides = [];
+
+    // Put slides in each array
     slides.forEach((t) => {
         getMetaSnapshot().forEach((item) => {
             if (item.id == t.name) {
@@ -204,11 +215,11 @@ function sortSlideThumbs(slides) {
             }
         });
     });
-    drawSlideThumbs();
+    _drawSlideThumbs();
 }
 
-async function drawSlideThumbs() {
-    var exisitingImg = document.querySelectorAll('.slideThumbnails img');
+async function _drawSlideThumbs() {
+    var exisitingImg = document.querySelectorAll('.slideThumbnails .image-thumbnail');
 
     // Remove any existing images
     exisitingImg.forEach((element) => {
@@ -311,7 +322,6 @@ function deleteSlide(id, day) {
                     var setDays = daysOfTheWeek.set({
                         days: setImageDays,
                     });
-                    location.reload(true);
                 } else {
                     // Remove document
                     daysOfTheWeek.delete().then(() => {
@@ -322,7 +332,6 @@ function deleteSlide(id, day) {
                     imageRef.delete().then(() => {
                         console.log('Image removed from storage');
                     });
-                    location.reload(true);
                 }
             } else {
                 alert('The document you are deleting does not exist. Try reloading the page?')
