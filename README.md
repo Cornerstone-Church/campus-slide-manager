@@ -1,2 +1,2 @@
 # campus-slide-manager
-CSM - Campus Slide Manager | Manages slides running over the campus
+CSM - Campus Slide Manager Display Server | Manages slides running over the campus
