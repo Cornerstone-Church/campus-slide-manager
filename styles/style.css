@@ -17,6 +17,7 @@ body, html {
     height: 100vh;
     object-fit: contain;
     transition: 1s;
+    background: black;
 }
 
 /* Notifications */
