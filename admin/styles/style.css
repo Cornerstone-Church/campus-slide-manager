@@ -2,6 +2,7 @@
     position: relative;
     width: 200px;
     height: 120px;
+    display: inline-block;
 }
 
 .image-thumbnail img {
@@ -9,6 +10,8 @@
     top: 0px;
     height: 100%;
     width: 100%;
+    object-fit: cover;
+    background: black;
 }
 
 .image-thumbnail .thumbnail-overlay {
@@ -37,4 +40,3 @@
 .image-thumbnail .thumbnail-overlay:hover {
     opacity: 1;
 }
-
