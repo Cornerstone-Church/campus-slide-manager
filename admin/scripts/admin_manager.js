@@ -1,3 +1,5 @@
+// TODO: Create logic for Update All button
+
 var uploader = document.getElementById('uploader');
 var fileButton = document.getElementById('fileButton');
 var slideshowTimer = document.getElementById('slideshowTimer');
@@ -15,17 +17,6 @@ var fridayCheck = document.getElementById('fridayCheck');
 var saturdayCheck = document.getElementById('saturdayCheck');
 
 var file;
-
-// Slide Thumbs
-var sundaySlides = [];
-var mondaySlides = [];
-var tuesdaySlides = [];
-var wednesdaySlides = [];
-var thursdaySlides = [];
-var fridaySlides = [];
-var saturdaySlides = [];
-
-var sundayPlaceholder = document.getElementById('sundaySlides');
 
 // Update timer
 db.collection('csm').doc('settings').get().then((doc) => {
@@ -156,15 +147,135 @@ uploadButton.addEventListener('mousedown', (e) => {
                 // TODO: Create created notification
                 console.log('Complete');
             });
-            
+
         }
     );
 });
 
 function loadSlidesThumbs() {
-    getImages(_sortSlideThumbs);
+    // Fetch images then Draw to screen
+    getImages(_drawSlideThumbs);
 }
 
+function _drawSlideThumbs(slides) {
+    var slidePlaceholder = document.getElementById('slide-placeholder');
+    slides.forEach((slide) => {
+        // Set up the wrapper and element
+        var slideWrapper = document.createElement('div');
+        slideWrapper.setAttribute('class', 'slide-wrapper');
+        slideWrapper.setAttribute('id', slide.name);
+        var imageElement = document.createElement('img');
+        var checkboxes;
+        var removeButton = document.createElement('button');
+        removeButton.innerHTML = 'Remove Slide';
+
+        // Get the download url for the slide
+        slide.getDownloadURL().then((url) => {
+            imageElement.src = url;
+            // Add to wrapper
+            slideWrapper.appendChild(imageElement);
+            // Fetch meta for slide
+            getMetaSnapshot().forEach((slideMeta) => {
+                // Find slide match with meta
+                if (slideMeta.id == slide.name) {
+                    var days = slideMeta.data().days;
+                    checkboxes = _createCheckBoxes(days);
+                    // Add to wrapper
+                    slideWrapper.appendChild(checkboxes);
+                    slideWrapper.appendChild(removeButton);
+                }
+            });
+        });
+
+        // Append result to placeholder
+        slidePlaceholder.appendChild(slideWrapper);
+    })
+}
+
+// Accepts an array of boxes needing to be checked
+function _createCheckBoxes(checked) {
+    // Checkboxes
+    var checkboxWrapper = document.createElement('div');
+    checkboxWrapper.setAttribute('class', 'checkbox-wrapper');
+    var sundayCheckBox = document.createElement('input');
+    sundayCheckBox.setAttribute('type', 'checkbox');
+    sundayCheckBox.setAttribute('id', 'sunday');
+    var mondayCheckBox = document.createElement('input');
+    mondayCheckBox.setAttribute('type', 'checkbox');
+    mondayCheckBox.setAttribute('id', 'monday');
+    var tuesdayCheckBox = document.createElement('input');
+    tuesdayCheckBox.setAttribute('type', 'checkbox');
+    tuesdayCheckBox.setAttribute('id', 'tuesday');
+    var wednesdayCheckBox = document.createElement('input');
+    wednesdayCheckBox.setAttribute('type', 'checkbox');
+    wednesdayCheckBox.setAttribute('id', 'wednesday');
+    var thursdayCheckBox = document.createElement('input');
+    thursdayCheckBox.setAttribute('type', 'checkbox');
+    thursdayCheckBox.setAttribute('id', 'thursday');
+    var fridayCheckBox = document.createElement('input');
+    fridayCheckBox.setAttribute('type', 'checkbox');
+    fridayCheckBox.setAttribute('id', 'friday');
+    var saturdayCheckBox = document.createElement('input');
+    saturdayCheckBox.setAttribute('type', 'checkbox');
+    saturdayCheckBox.setAttribute('id', 'saturday');
+
+    // Lables
+    var sundayLable = document.createElement('label');
+    sundayLable.setAttribute('for', 'sunday');
+    sundayLable.innerHTML = 'Sunday';
+    var mondayLable = document.createElement('label');
+    mondayLable.setAttribute('for', 'monday');
+    mondayLable.innerHTML = 'Monday';
+    var tuesdayLable = document.createElement('label');
+    tuesdayLable.setAttribute('for', 'tuesday');
+    tuesdayLable.innerHTML = 'Tuesday';
+    var wednesdayLable = document.createElement('label');
+    wednesdayLable.setAttribute('for', 'wednesday');
+    wednesdayLable.innerHTML = 'Wednesday';
+    var thursdayLable = document.createElement('label');
+    thursdayLable.setAttribute('for', 'thursday');
+    thursdayLable.innerHTML = 'Thursday';
+    var fridayLable = document.createElement('label');
+    fridayLable.setAttribute('for', 'friday');
+    fridayLable.innerHTML = 'Friday';
+    var saturdayLable = document.createElement('label');
+    saturdayLable.setAttribute('for', 'saturday');
+    saturdayLable.innerHTML = 'Saturday';
+
+    // Check boxes that need to be checked
+    checked.forEach((day) => {
+        switch (day) {
+            case 'sunday': sundayCheckBox.checked = true; break;
+            case 'monday': mondayCheckBox.checked = true; break;
+            case 'tuesday': tuesdayCheckBox.checked = true; break;
+            case 'wednesday': wednesdayCheckBox.checked = true; break;
+            case 'thursday': thursdayCheckBox.checked = true; break;
+            case 'friday': fridayCheckBox.checked = true; break;
+            case 'saturday': saturdayCheckBox.checked = true; break;
+            default: console.error('Unknown day to check: 332445');
+        }
+    })
+
+    // Add to checkbox wrapper
+    checkboxWrapper.appendChild(sundayCheckBox);
+    checkboxWrapper.appendChild(sundayLable);
+    checkboxWrapper.appendChild(mondayCheckBox);
+    checkboxWrapper.appendChild(mondayLable);
+    checkboxWrapper.appendChild(tuesdayCheckBox);
+    checkboxWrapper.appendChild(tuesdayLable);
+    checkboxWrapper.appendChild(wednesdayCheckBox);
+    checkboxWrapper.appendChild(wednesdayLable);
+    checkboxWrapper.appendChild(thursdayCheckBox);
+    checkboxWrapper.appendChild(thursdayLable);
+    checkboxWrapper.appendChild(fridayCheckBox);
+    checkboxWrapper.appendChild(fridayLable);
+    checkboxWrapper.appendChild(saturdayCheckBox);
+    checkboxWrapper.appendChild(saturdayLable);
+
+    return checkboxWrapper;
+}
+
+/** _sortSlideThumbs - Obsolete
 function _sortSlideThumbs(slides) {
     // Clear all sorted existing arrays
     sundaySlides = [];
@@ -217,7 +328,9 @@ function _sortSlideThumbs(slides) {
     });
     _drawSlideThumbs();
 }
+*/
 
+/** _drawSlideThumbs - Obsolete
 async function _drawSlideThumbs() {
     var exisitingImg = document.querySelectorAll('.slideThumbnails .image-thumbnail');
 
@@ -247,7 +360,9 @@ async function _drawSlideThumbs() {
     await fetchServerImages('friday', fridaySlides, fridayPlaceholder);
     await fetchServerImages('saturday', saturdaySlides, saturdayPlaceholder);
 }
+*/
 
+/** fetchServerImages - Obsolete
 // A promise function that will download and create elements for each image
 function fetchServerImages(day, imageArray, placeholder) {
     return new Promise(async resolve => {
@@ -263,7 +378,9 @@ function fetchServerImages(day, imageArray, placeholder) {
         resolve();
     });
 }
+*/
 
+/** createThumbnail - Obsolete
 function createThumbnail(id, url, day, placeholder) {
     var img = document.createElement('img');
     // assign url
@@ -295,7 +412,9 @@ function createThumbnail(id, url, day, placeholder) {
 
     placeholder.appendChild(thumbnail);
 }
+*/
 
+// TODO: Will need to be reworked
 function deleteSlide(id, day) {
     if (confirm('Are you sure you want to remove image?')) {
         var daysOfTheWeek = db.collection('csm').doc('mediadata').collection('meta').doc(id);
