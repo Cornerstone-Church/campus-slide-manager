@@ -16,6 +16,8 @@ var thursdayCheck = document.getElementById('thursdayCheck');
 var fridayCheck = document.getElementById('fridayCheck');
 var saturdayCheck = document.getElementById('saturdayCheck');
 
+var storageRef = storage.ref('csm-data/images/');
+
 var file;
 
 // Update timer
@@ -31,6 +33,11 @@ db.collection('csm').doc('settings').get().then((doc) => {
 db.collection('csm').doc('mediadata').collection('meta').onSnapshot((snapshot) => {
     // Save snapshot
     metaSnapshot = snapshot;
+
+    // Remove exisiting images
+    var placeholder = document.getElementById('slide-placeholder');
+    placeholder.innerHTML = "";
+
     // Re-fetch all images from server
     loadSlidesThumbs();
 
@@ -100,10 +107,10 @@ uploadButton.addEventListener('mousedown', (e) => {
     var uploadId = makeid(12);
 
     // Create a storage ref
-    var storageRef = storage.ref('csm-data/images/' + uploadId);
+    var childRef = storageRef.child(uploadId);
 
     // Upload File
-    var task = storageRef.put(file);
+    var task = childRef.put(file);
 
     // Update Progress bar
     task.on('state_changed',
@@ -145,18 +152,25 @@ uploadButton.addEventListener('mousedown', (e) => {
                 days: days,
             }).then(() => {
                 // TODO: Create created notification
-                console.log('Complete');
+                alert('Complete');
             });
 
         }
     );
 });
 
+/** Downloads the slides and passes them on to _drawSlideThumbs()
+ * 
+ */
 function loadSlidesThumbs() {
     // Fetch images then Draw to screen
     getImages(_drawSlideThumbs);
 }
 
+/** Will take downloaded slides and create a slide editor layout for each slide
+ * 
+ * @param {Array} slides - Downloaded slides
+ */
 function _drawSlideThumbs(slides) {
     var slidePlaceholder = document.getElementById('slide-placeholder');
     slides.forEach((slide) => {
@@ -168,6 +182,8 @@ function _drawSlideThumbs(slides) {
         var checkboxes;
         var removeButton = document.createElement('button');
         removeButton.innerHTML = 'Remove Slide';
+        var onClickValue = "deleteSlide('" + slide.name + "')";
+        removeButton.setAttribute('onClick', onClickValue);
 
         // Get the download url for the slide
         slide.getDownloadURL().then((url) => {
@@ -192,7 +208,10 @@ function _drawSlideThumbs(slides) {
     })
 }
 
-// Accepts an array of boxes needing to be checked
+/** A function that creates the checkboxes for each slide
+ * 
+ * @param {Array<string>} checked - Days of the week that slide is assigned to
+ */
 function _createCheckBoxes(checked) {
     // Checkboxes
     var checkboxWrapper = document.createElement('div');
@@ -275,187 +294,26 @@ function _createCheckBoxes(checked) {
     return checkboxWrapper;
 }
 
-/** _sortSlideThumbs - Obsolete
-function _sortSlideThumbs(slides) {
-    // Clear all sorted existing arrays
-    sundaySlides = [];
-    mondaySlides = [];
-    tuesdaySlides = [];
-    wednesdaySlides = [];
-    thursdaySlides = [];
-    fridaySlides = [];
-    saturdaySlides = [];
-
-    // Put slides in each array
-    slides.forEach((t) => {
-        getMetaSnapshot().forEach((item) => {
-            if (item.id == t.name) {
-                item.data().days.forEach((day) => {
-                    switch (day) {
-                        case 'sunday': {
-                            sundaySlides.push(t);
-                            break;
-                        }
-                        case 'monday': {
-                            mondaySlides.push(t);
-                            break;
-                        }
-                        case 'tuesday': {
-                            tuesdaySlides.push(t);
-                            break;
-                        }
-                        case 'wednesday': {
-                            wednesdaySlides.push(t);
-                            break;
-                        }
-                        case 'thursday': {
-                            thursdaySlides.push(t);
-                            break;
-                        }
-                        case 'friday': {
-                            fridaySlides.push(t);
-                            break;
-                        }
-                        case 'saturday': {
-                            saturdaySlides.push(t);
-                            break;
-                        }
-                        default: console.log('error');
-                    }
-                });
-            }
-        });
-    });
-    _drawSlideThumbs();
-}
-*/
-
-/** _drawSlideThumbs - Obsolete
-async function _drawSlideThumbs() {
-    var exisitingImg = document.querySelectorAll('.slideThumbnails .image-thumbnail');
-
-    // Remove any existing images
-    exisitingImg.forEach((element) => {
-        element.remove();
-    });
-
-    // Thumbnail Placeholders
-    var sundayPlaceholder = document.getElementById('sundaySlides');
-    var mondayPlaceholder = document.getElementById('mondaySlides');
-    var tuesdayPlaceholder = document.getElementById('tuesdaySlides');
-    var wednesdayPlaceholder = document.getElementById('wednesdaySlides');
-    var thursdayPlaceholder = document.getElementById('thursdaySlides');
-    var fridayPlaceholder = document.getElementById('fridaySlides');
-    var saturdayPlaceholder = document.getElementById('saturdaySlides');
-
-    // TODO: Create overlay with trashcan icon to remove slide
-
-
-    // Draw content to each placeholder
-    await fetchServerImages('sunday', sundaySlides, sundayPlaceholder);
-    await fetchServerImages('monday', mondaySlides, mondayPlaceholder);
-    await fetchServerImages('tuesday', tuesdaySlides, tuesdayPlaceholder);
-    await fetchServerImages('wednesday', wednesdaySlides, wednesdayPlaceholder);
-    await fetchServerImages('thursday', thursdaySlides, thursdayPlaceholder);
-    await fetchServerImages('friday', fridaySlides, fridayPlaceholder);
-    await fetchServerImages('saturday', saturdaySlides, saturdayPlaceholder);
-}
-*/
-
-/** fetchServerImages - Obsolete
-// A promise function that will download and create elements for each image
-function fetchServerImages(day, imageArray, placeholder) {
-    return new Promise(async resolve => {
-        for (i = 0; i < imageArray.length; i++) {
-            var image = storageRef.child(imageArray[i].location.path);
-            // Save image url as variable
-            var url = await image.getDownloadURL();
-            var id = image.name;
-
-            // Create thumbnail
-            createThumbnail(id, url, day, placeholder);
-        }
-        resolve();
-    });
-}
-*/
-
-/** createThumbnail - Obsolete
-function createThumbnail(id, url, day, placeholder) {
-    var img = document.createElement('img');
-    // assign url
-    img.src = url;
-    // set image id to image name
-    img.setAttribute('id', id);
-
-    // Create thumbnail element
-    var thumbnail = document.createElement('div');
-    thumbnail.setAttribute('class', 'image-thumbnail');
-
-    // Create overlay
-    var thumbnailOverlay = document.createElement('div');
-    thumbnailOverlay.setAttribute('class', 'thumbnail-overlay');
-
-    // Create Delete button
-    var deleteButton = document.createElement('a');
-    deleteButton.setAttribute('class', 'delete-button');
-    deleteButton.setAttribute('onclick', "deleteSlide('" + id + "', '" + day + "');");
-    var deleteIcon = document.createElement('img');
-    deleteIcon.src = '/ref/icons/trash-can-white.png';
-    deleteButton.appendChild(deleteIcon);
-    // Add button to overlay
-    thumbnailOverlay.appendChild(deleteButton);
-
-    // Stack elements in order
-    thumbnail.appendChild(img);
-    thumbnail.appendChild(thumbnailOverlay);
-
-    placeholder.appendChild(thumbnail);
-}
-*/
-
-// TODO: Will need to be reworked
-function deleteSlide(id, day) {
+/** Removes a slide from data and meta
+ * 
+ * @param {string} id - ID of the slide to remove
+ */
+function deleteSlide(id) {
     if (confirm('Are you sure you want to remove image?')) {
-        var daysOfTheWeek = db.collection('csm').doc('mediadata').collection('meta').doc(id);
-        daysOfTheWeek.get().then((doc) => {
-            if (doc.exists) {
-                // Set variables
-                var setImageDays = doc.data().days;
-
-                // Check to see if the image is used in more then one place
-                if (setImageDays.length > 1) {
-                    // Go through each day the image is set to show
-                    for (i = 0; i < setImageDays.length; i++) {
-                        // If day is found remove it from the array
-                        if (day == setImageDays[i]) {
-                            setImageDays.splice(i, 1);
-                        }
-                    }
-                    // TODO: Finish this!!!
-                    // Remove old server array
-                    var removeDay = daysOfTheWeek.update({
-                        days: firebase.firestore.FieldValue.delete(),
-                    });
-                    // Upload updated server array
-                    var setDays = daysOfTheWeek.set({
-                        days: setImageDays,
-                    });
-                } else {
-                    // Remove document
-                    daysOfTheWeek.delete().then(() => {
-                        console.log('Removed meta document');
-                    });
-                    // Remove image from storage
-                    var imageRef = storageRef.child('csm-data/images/' + id);
-                    imageRef.delete().then(() => {
-                        console.log('Image removed from storage');
-                    });
-                }
-            } else {
-                alert('The document you are deleting does not exist. Try reloading the page?')
-            }
-        });
+        // Remove the file from storage
+        var childRef = storageRef.child(id);
+        childRef.delete().then(() => {
+            console.log('File deleted');
+            // Remove mediaData
+            var slideData = db.collection('csm').doc('mediadata').collection('meta').doc(id);
+            slideData.delete().then(() => {
+                console.log('Media Data removed');
+            }).catch((error) => {
+                console.error('Unable to remove Media Data: ' + error);
+            })
+        }).catch((error) => {
+            console.error('Unable to remove file: ' + error);
+        })
     }
 }
 
