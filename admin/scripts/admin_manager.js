@@ -5,6 +5,7 @@ var fileButton = document.getElementById('fileButton');
 var slideshowTimer = document.getElementById('slideshowTimer');
 var uploadButton = document.getElementById('uploadButton');
 var removeAllButton = document.getElementById('removeAllButton');
+var updateAllButton = document.getElementById('updateAllButton');
 
 // Check boxes
 var everydayCheck = document.getElementById('everydayCheck');
@@ -16,6 +17,9 @@ var thursdayCheck = document.getElementById('thursdayCheck');
 var fridayCheck = document.getElementById('fridayCheck');
 var saturdayCheck = document.getElementById('saturdayCheck');
 
+var noticeMessage = document.getElementById('noticeMessage');
+
+// Firebase storage reference
 var storageRef = storage.ref('csm-data/images/');
 
 var file;
@@ -44,14 +48,17 @@ db.collection('csm').doc('mediadata').collection('meta').onSnapshot((snapshot) =
     console.log('Updated content from server');
 });
 
-
 //// LISTENERS
 // Send updated timer to server
 slideshowTimer.addEventListener('change', (e) => {
     var timerVar = slideshowTimer.value * 1000;
-    db.collection('csm').doc('settings').set({
-        timer: timerVar
-    });
+    if (timerVar >= 3000) {
+        db.collection('csm').doc('settings').set({
+            timer: timerVar
+        });
+    } else {
+        alert('Please enter a time larger then 3s');
+    }
 });
 
 everydayCheck.addEventListener('change', (e) => {
@@ -74,7 +81,7 @@ everydayCheck.addEventListener('change', (e) => {
     }
 });
 
-removeAllButton.addEventListener('mousedown', (action) => {
+removeAllButton.addEventListener('mouseup', (action) => {
     if (confirm('Are you sure you want to remove all slides?')) {
         console.log('Removing all slides');
         directoryRef.listAll().then((e) => {
@@ -91,9 +98,69 @@ removeAllButton.addEventListener('mousedown', (action) => {
                 });
             }).then(() => {
                 alert('Removed all slides');
+                var placeholder = document.getElementById('slide-placeholder');
+                placeholder.innerHTML = '';
             });
         })
     }
+});
+
+updateAllButton.addEventListener('mouseup', (action) => {
+    var currentSlides = document.querySelectorAll('.slide-wrapper');
+    var slideCounter = 0;
+
+    currentSlides.forEach((element) => {
+        var selectedArray = [];
+
+        var sundayCheckBox = element.querySelector('#sunday');
+        var mondayCheckBox = element.querySelector('#monday');
+        var tuesdayCheckBox = element.querySelector('#tuesday');
+        var wednesdayCheckBox = element.querySelector('#wednesday');
+        var thursdayCheckBox = element.querySelector('#thursday');
+        var fridayCheckBox = element.querySelector('#friday');
+        var saturdayCheckBox = element.querySelector('#saturday');
+
+        if (sundayCheckBox.checked) {
+            selectedArray.push('sunday');
+        }
+        if (mondayCheckBox.checked) {
+            selectedArray.push('monday');
+        }
+        if (tuesdayCheckBox.checked) {
+            selectedArray.push('tuesday');
+        }
+        if (wednesdayCheckBox.checked) {
+            selectedArray.push('wednesday');
+        }
+        if (thursdayCheckBox.checked) {
+            selectedArray.push('thursday');
+        }
+        if (fridayCheckBox.checked) {
+            selectedArray.push('friday');
+        }
+        if (saturdayCheckBox.checked) {
+            selectedArray.push('saturday');
+        }
+
+        // Checks to make sure at least one day is selected
+        if (selectedArray.length > 0) {
+            element.classList.remove('error');
+            // Upload to server
+            db.collection('csm').doc('mediadata').collection('meta').doc(element.id).set({
+                days: selectedArray,
+            }).then(() => {
+                slideCounter++;
+                console.log(slideCounter);
+                _updateComplete(slideCounter, currentSlides.length);
+            }).catch((error) => {
+                alert('There was a problem updating the slides. Please try again later. ERROR: ' + error);
+            })
+
+        } else {
+            element.classList.add('error');
+            showError('You must select at least one day');
+        }
+    })
 });
 
 // Upload button
@@ -315,6 +382,27 @@ function deleteSlide(id) {
             console.error('Unable to remove file: ' + error);
         })
     }
+}
+
+function showError(error) {
+    noticeMessage.innerHTML = error;
+    noticeMessage.style.color = 'red';
+    noticeMessage.style.display = 'inline';
+    setTimeout(hideMessage, 5000);
+}
+
+function _updateComplete(currentNumber, totalNumber) {
+    if (currentNumber == totalNumber) {
+        noticeMessage.innerHTML = 'Update complete';
+        noticeMessage.style.color = 'green';
+        noticeMessage.style.display = 'inline';
+        setTimeout(hideMessage, 5000);
+    }
+}
+
+function hideMessage() {
+    noticeMessage.innerHTML = '';
+    noticeMessage.style.display = 'none';
 }
 
 function makeid(length) {
